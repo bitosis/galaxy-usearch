@@ -1,0 +1,136 @@
+<tool id="usearch_fastq_mergepairs" name="usearch fastq_mergepairs" version="0.0.1">
+    <requirements>
+        <requirement type="package" version="7.0.1001">usearch</requirement>
+    </requirements>
+    <description>merging of paired reads</description>
+    <version_command>usearch -version</version_command>
+    <command interpreter='bash'>usearch_wrapper.sh
+usearch
+-fastq_mergepairs '$input_forward'
+-reverse '$input_reverse'
+#if $minovlen.value != 0
+    -fastq_minovlen $minovlen
+#end if
+#if $minmergelen.value != 0
+    -fastq_minmergelen $minmergelen
+#end if
+#if $maxmergelen.value != 0
+    -fastq_maxmergelen $maxmergelen
+#end if
+#if $maxdiffs.value != 0
+    -fastq_maxdiffs $maxdiffs
+#end if
+#if $truncqual.value != 0
+    -fastq_truncqual $truncqual
+#end if
+#if $minlen.value != 0
+    -fastq_minlen $minlen
+#end if
+$allowmergestagger
+-fastq_ascii $ascii
+-fastq_qmin $qmin
+-fastq_qmax $qmax
+-fastq_qmaxout $qmaxout
+#if $out_format.value == "fastq"
+    -fastqout $output
+#else
+    -fastaout $output
+#end if
+    </command>
+    <inputs>
+        <param name="input_forward"     type="data" format="fastq,fastqsanger,fastqcssanger" label="1. File with forward reads" />
+        <param name="input_reverse"     type="data" format="fastq,fastqsanger,fastqcssanger" label="2. File with reverse reads" />
+        <param name="minovlen"          type="integer" value="0" label="3. Minimum length of the overlap" help="'0' means no minimum." />
+        <param name="minmergelen"       type="integer" value="0" label="4. Minimum length of the merged read" help="'0' means no minimum." />
+        <param name="maxmergelen"       type="integer" value="0" label="5. Maximum length of the merged read" help="'0' means no maximum." />
+        <param name="maxdiffs"          type="integer" value="0" label="6. Maximum number of mismatches allowed in the overlap region" help="'0' means any number of mismatches allowed." />
+        <param name="truncqual"         type="integer" value="0" label="7. Truncate the forward and reverse reads at the first Q that is equal or less than this value, if present"
+               help="'0' means no quality truncation. This truncation is performed before aligning the pair. With Illumina paired reads, it is recommended to set this to 2 or higher, as low-quality tails will otherwise often cause alignment of the pair to fail." />
+        <param name="minlen"            type="integer" value="0" label="8. Minimum length of the forward and reverse read, after truncating per option 7 if applicable" help="'0' means no minimum." />
+        <param name="allowmergestagger" type="boolean" truevalue="-fastq_allowmergestagger" falsevalue="" checked="false" label="9. Allow merge of a pair where the alignment is staggered" help="By default, pairs with staggered alignments are discarded." />
+        <param name="ascii"             type="integer" value="33" label="10. ASCII_BASE constant" help="See http://drive5.com/usearch/manual/fastq_params.html" />
+        <param name="qmin"              type="integer" value="0" label="11. Minimum Q score for input files" />
+        <param name="qmax"              type="integer" value="41" label="12. Maximum Q score for input files" />
+        <param name="qmaxout"           type="integer" value="41" label="13. Maximum Q score for output files" />
+        <param name="out_format" type="select" label="Output format">
+            <option value="fastq">FASTQ</option>
+            <option value="fasta">FASTA</option>
+        </param>
+   </inputs>
+    <outputs>
+        <data format="fastq" name="output" label="Merge output">
+            <change_format>
+                <when input="out_format" value="fasta" format="fasta" />
+            </change_format>
+        </data>
+    </outputs>
+    <tests>
+        <test>
+          <param name="input_forward" value="fastq_mergepairs_input1.fq" ftype="fastq" />
+          <param name="input_reverse" value="fastq_mergepairs_input2.fq" ftype="fastq" />
+          <param name="qmax" value="65" />
+          <output name="output" file="fastq_mergepairs_output1.fastq" />
+        </test>
+        <test>
+          <param name="input_forward" value="fastq_mergepairs_input1.fq" ftype="fastq" />
+          <param name="input_reverse" value="fastq_mergepairs_input2.fq" ftype="fastq" />
+          <param name="minovlen" value="30" />
+          <param name="qmax" value="65" />
+          <param name="out_format" value="fasta" />
+          <output name="output" file="fastq_mergepairs_output2.fasta" />
+        </test>
+   </tests>
+    <help>
+**What it Does**
+
+Performs merging of paired reads.
+
+Forward and reverse must be in 1:1 correspondence and must appear in the same
+order in both files. The labels for the forward and reverse read in a given
+pair must be identical except for a single position where a '1' appears in the
+forward read label and a '2' appears in the reverse read label.
+
+-----
+
+**Input formats**
+
+Forward read::
+
+    @IRIS:7:1:29:952#0/1
+    TGAGAAGCAAGAAGAAGGTTGGTTAGTGTTTTGGAG
+    +IRIS:7:1:29:952#0/1
+    aaabaaaaaaaaaaa`aaY`aa^aaa^a_a_`aa``
+
+Reverse read::
+
+    @IRIS:7:1:29:952#0/2
+    GACTCCAAAACACTAACCAACCTTCTTCTTGCTTCT
+    +IRIS:7:1:29:952#0/2
+    aaaabaaaabaaaabbaaaa````__`__^__``__
+
+-----
+
+**Output**
+
+A multiple-fastq file, for example::
+
+    @IRIS:7:1:29:952#0/1
+    TGAGAAGCAAGAAGAAGGTTGGTTAGTGTTTTGGAGTC
+    +
+    aaJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJaa
+
+------
+
+**Manual**
+
+* USEARCH fastq_mergepairs options: http://drive5.com/usearch/manual/fastq_mergepairs.html
+* FASTQ format options: http://drive5.com/usearch/manual/fastq_params.html
+
+**Citation**
+
+Please cite one of these papers if you use USEARCH in published work.
+
+Edgar,RC (2010) Search and clustering orders of magnitude faster than BLAST, Bioinformatics 26(19), 2460-2461.
+doi: 10.1093/bioinformatics/btq461
+    </help>
+</tool>

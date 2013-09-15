@@ -1,6 +1,6 @@
 <tool id="usearch_fastq_mergepairs" name="usearch fastq_mergepairs" version="0.0.1">
     <requirements>
-        <requirement type="package" version="7.0.1001">usearch</requirement>
+        <requirement type="package" version="7">usearch</requirement>
     </requirements>
     <description>merging of paired reads</description>
     <version_command>usearch -version</version_command>

@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <tool_dependency>
-    <package name="usearch" version="7.0.1001">
+    <package name="usearch" version="7">
         <install version="1.0">
             <actions>
-                <action type="shell_command">if usearch --version | grep -q 7.0.1001; then echo "USEARCH version OK"; else echo "Wrong USEARCH version or not found" 1&gt;&amp;2; echo "Download from http://www.drive5.com/usearch/download.html" 1&gt;&amp;2; fi;</action>
+                <action type="shell_command">if usearch --version | grep -q "7.[0-9.]\+"; then echo "USEARCH version OK"; else echo "Wrong USEARCH version or not found" 1&gt;&amp;2; echo "Download from http://www.drive5.com/usearch/download.html" 1&gt;&amp;2; fi;</action>
             </actions>
         </install>
         <readme>USEARCH cannot be automatically downloaded and installed. Please download it manually from http://www.drive5.com/usearch/download.html and install it somewhere in the PATH of your system.</readme>
